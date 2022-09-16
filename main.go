@@ -40,8 +40,39 @@ func modifyRequest(req *http.Request) {
 		q.Add("match[]", "{project=\"DataV2\"}")
 		req.URL.RawQuery = q.Encode()
 	}
+	if req.URL.Path == "/api/v1/query" {
+		req.ParseForm()
+		req.ContentLength = 0
+		q := req.URL.Query()
+		for k, v := range req.Form {
+			if k == "query" {
+				q.Add(k, v[0]+"{project=\"DataV2\"}")
+				continue
+			}
+			q.Add(k, v[0])
+		}
+		req.URL.RawQuery = q.Encode()
+	}
 
-	fmt.Println(req.URL.String())
+	if req.URL.Path == "/api/v1/query_range" {
+		req.ParseForm()
+		req.ContentLength = 0
+		q := req.URL.Query()
+		for k, v := range req.Form {
+			if k == "query" {
+				q.Add(k, v[0]+"{project=\"DataV2\"}")
+				continue
+			}
+			q.Add(k, v[0])
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+
+	reqDump, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("REQUEST:\n%s", string(reqDump))
 }
 
 func errorHandler() func(http.ResponseWriter, *http.Request, error) {
@@ -73,5 +104,6 @@ func main() {
 
 	// handle all requests to your server using the proxy
 	http.HandleFunc("/", ProxyRequestHandler(proxy))
+	log.Println("Server Started")
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
