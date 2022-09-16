@@ -1,4 +1,4 @@
-module galaxyed/prometheus-proxy
+module github.com/galaxyed/prometheus-proxy
 
 go 1.18
 
