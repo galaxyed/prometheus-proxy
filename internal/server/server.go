@@ -9,6 +9,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/galaxyed/prometheus-proxy/internal/conf"
 )
@@ -42,10 +43,22 @@ func getGroup(req *http.Request, cfg *conf.Config) []conf.Label {
 	}
 	return groups
 }
+func endUpModifyRequest(t time.Time) int {
+	t2 := time.Now()
+	diff := t2.Sub(t)
+	log.Println(diff)
+	return 1
+}
 
-func modifyRequest(req *http.Request, cfg *conf.Config) {
+func modifyRequest(req *http.Request, cfg *conf.Config) int {
+	t1 := time.Now()
 	label_list := getGroup(req, cfg)
 	log.Println(label_list)
+
+	if req.URL.Query().Get("query") == "time()" {
+		return endUpModifyRequest(t1)
+	}
+
 	if req.URL.Path == "/api/v1/label/__name__/values" {
 		q := req.URL.Query()
 		q.Add("match[]", "{project=\"DataV2\"}")
@@ -63,9 +76,11 @@ func modifyRequest(req *http.Request, cfg *conf.Config) {
 		q := req.URL.Query()
 		for k, v := range req.Form {
 			if k == "query" {
+				q.Del(k)
 				q.Add(k, v[0]+"{project=\"DataV2\"}")
 				continue
 			}
+			q.Del(k)
 			q.Add(k, v[0])
 		}
 		req.URL.RawQuery = q.Encode()
@@ -77,19 +92,17 @@ func modifyRequest(req *http.Request, cfg *conf.Config) {
 		q := req.URL.Query()
 		for k, v := range req.Form {
 			if k == "query" {
+				q.Del(k)
 				q.Add(k, v[0]+"{project=\"DataV2\"}")
 				continue
 			}
+			q.Del(k)
 			q.Add(k, v[0])
 		}
 		req.URL.RawQuery = q.Encode()
 	}
 
-	reqDump, err := httputil.DumpRequestOut(req, true)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("REQUEST:\n%s", string(reqDump))
+	return endUpModifyRequest(t1)
 }
 
 func errorHandler() func(http.ResponseWriter, *http.Request, error) {
@@ -108,6 +121,7 @@ func modifyResponse() func(*http.Response) error {
 // ProxyRequestHandler handles the http request using proxy
 func ProxyRequestHandler(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
 		proxy.ServeHTTP(w, r)
 	}
 }
