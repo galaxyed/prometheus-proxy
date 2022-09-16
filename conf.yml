@@ -1,0 +1,16 @@
+Policies:
+  - Name: DataV2
+    APIKey: zwOsBzC6vl5A2nKKjtm78Q70VOIRDj6Kd1xmdxXEbKp6QQ5UOQhDWj8zqX3JOkSB
+    Labels:
+      - Label: Project
+        Value: DataV2
+  - Name: K8S-PRODUCTION
+    APIKey: WimRQtPOabjX40OaiVC0EJCLKTmKtfiWemwPsCz4eXAtHm9D1vZMOXu8PzETdYfu
+    Labels:
+      - Label: cluster
+        Value: production
+  - Name: K8S-STAGING
+    APIKey: uAreY1f7ezuighGhu0AUozz5ihDEG8mLU7DnH92dNr3oKY1VP5KA4EfbnFPqIBXd
+    Labels:
+      - Label: cluster
+        Value: production

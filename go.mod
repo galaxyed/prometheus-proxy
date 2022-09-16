@@ -1,3 +1,3 @@
-module example/web-service-gin
+module galaxyed/prometheus-proxy
 
-go 1.19
+go 1.18
