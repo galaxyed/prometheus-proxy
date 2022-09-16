@@ -31,8 +31,21 @@ func NewProxy(targetHost string, cfg *conf.Config) (*httputil.ReverseProxy, erro
 	proxy.ErrorHandler = errorHandler()
 	return proxy, nil
 }
+func getGroup(req *http.Request, cfg *conf.Config) []conf.Label {
+	key := req.Header.Get("X-API-KEY")
+	var groups []conf.Label
+	for _, v := range cfg.Policies {
+		if v.APIKey == key {
+			log.Print("Found")
+			groups = append(groups, v.Labels...)
+		}
+	}
+	return groups
+}
 
 func modifyRequest(req *http.Request, cfg *conf.Config) {
+	label_list := getGroup(req, cfg)
+	log.Println(label_list)
 	if req.URL.Path == "/api/v1/label/__name__/values" {
 		q := req.URL.Query()
 		q.Add("match[]", "{project=\"DataV2\"}")

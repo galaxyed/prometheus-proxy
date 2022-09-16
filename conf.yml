@@ -1,7 +1,7 @@
 # config.yml
 Policies:
   - Name: DataV2
-    APIKey: zwOsBzC6vl5A2nKKjtm78Q70VOIRDj6Kd1xmdxXEbKp6QQ5UOQhDWj8zqX3JOkSB
+    APIKey: uAreY1f7ezuighGhu0AUozz5ihDEG8mLU7DnH92dNr3oKY1VP5KA4EfbnFPqIBXd
     Labels:
       - Label: Project
         Value: DataV2
