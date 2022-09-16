@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"github.com/galaxyed/prometheus-proxy/internal/conf"
 )
 
 // NewProxy takes target host and creates a reverse proxy
