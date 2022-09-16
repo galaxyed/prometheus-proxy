@@ -9,16 +9,18 @@ import (
 )
 
 func main() {
+	// Read Config
+	cfgPath, err := server.ParseFlags()
+	if err != nil {
+		log.Fatal(err)
+	}
+	cfg, err := conf.NewConfig(cfgPath)
+
 	// initialize a reverse proxy and pass the actual backend server url here
-	proxy, err := server.NewProxy("http://10.100.0.52:9090")
+	proxy, err := server.NewProxy("http://10.100.0.52:9090", cfg)
 	if err != nil {
 		panic(err)
 	}
-    cfgPath, err := server.ParseFlags()
-    if err != nil {
-        log.Fatal(err)
-    }
-	cfg, err := conf.NewConfig(cfgPath)
 	log.Println(cfg.Policies[0].Name)
 
 	// handle all requests to your server using the proxy
