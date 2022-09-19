@@ -16,3 +16,15 @@ build:
 # start server
 run: build
 	./bin/prometheus-proxy --config conf.yml
+
+
+.PHONY: docker-build
+# start server
+docker-build:
+	docker build . -t prometheus-proxy:dev
+
+
+.PHONY: docker-run
+# start server
+docker-run: docker-build
+	docker run -it -p 8000:8000 prometheus-proxy:dev
