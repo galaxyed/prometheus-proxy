@@ -8,14 +8,14 @@ RUN go mod download
 
 COPY . .
 
-RUN go build
+RUN mkdir -p bin/ && go build -o ./bin/ ./...
 
 FROM alpine AS runner
 
-WORKDIR /app
+WORKDIR /
 
-COPY --from=builder /go/src/app/prometheus-proxy /app/prometheus-proxy
+COPY --from=builder /go/src/app/bin/prometheus-proxy /prometheus-proxy
 
 COPY conf.yml conf.yml
 
-ENTRYPOINT [ "/app/prometheus-proxy", "--config", "/app/conf.yml" ]
+ENTRYPOINT [ "/prometheus-proxy", "--config", "conf.yml" ]
