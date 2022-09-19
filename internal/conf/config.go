@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Policies      []Policy `yaml:"Policies"`
 	PrometheusKey string   `yaml:"PrometheusKey"`
+	Authorization string   `yaml:"Authorization"`
 }
 type Policy struct {
 	Name   string  `yaml:"Name"`
