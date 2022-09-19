@@ -55,19 +55,32 @@ func GetFilter(policies []Policy, ApiKey string) (string, error) {
 	}
 
 	if len(groups) == 0 {
-		return "DeadEndpoint=\"You have no access to This, This returned empty thing\"", nil
+		return "DeclinedLabel=\"You have no access to This, This returned empty thing\"", nil
 	}
 
+	groupsMap := make(map[string]string)
 	for _, v := range groups {
-		filter_label += v.Label
-		if strings.Contains(v.Value, "*") {
+		if _, ok := groupsMap[v.Label]; ok {
+			groupsMap[v.Label] += "|"
+			groupsMap[v.Label] += v.Value
+		} else {
+			groupsMap[v.Label] = v.Value
+		}
+
+	}
+	log.Print(groupsMap)
+
+	for label, value := range groupsMap {
+		filter_label += label
+		if strings.Contains(value, "*") || strings.Contains(value, "|"){
 			filter_label += "=~\""
 		} else {
 			filter_label += "=\""
 		}
 
-		filter_label += v.Value
+		filter_label += value
 		filter_label += "\","
 	}
+
 	return strings.Trim(filter_label, ","), nil
 }

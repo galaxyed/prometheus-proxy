@@ -13,7 +13,7 @@ Policies:
       - Label: instance
         Value: worker-.*
   - Name: K8S-STAGING
-    APIKey: uAreY1f7ezuighGhu0AUozz5ihDEG8mLU7DnH92dNr3oKY1VP5KA4EfbnFPqIBXd
+    APIKey: WimRQtPOabjX40OaiVC0EJCLKTmKtfiWemwPsCz4eXAtHm9D1vZMOXu8PzETdYfu
     Labels:
       - Label: cluster
         Value: staging
