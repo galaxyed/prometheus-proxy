@@ -3,6 +3,9 @@ GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
 
 
+.PHONY: all
+all: run
+
 .PHONY: build
 # build
 build:
