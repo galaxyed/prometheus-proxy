@@ -9,9 +9,11 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/galaxyed/prometheus-proxy/internal/conf"
+	queryprocessing "github.com/galaxyed/prometheus-proxy/internal/query-processing"
 )
 
 // NewProxy takes target host and creates a reverse proxy
@@ -32,16 +34,24 @@ func NewProxy(targetHost string, cfg *conf.Config) (*httputil.ReverseProxy, erro
 	proxy.ErrorHandler = errorHandler()
 	return proxy, nil
 }
-func getGroup(req *http.Request, cfg *conf.Config) []conf.Label {
-	key := req.Header.Get("X-API-KEY")
+func getGroup(req *http.Request, cfg *conf.Config) string {
+	key := req.Header.Get("PROMETHEUS-API-KEY")
 	var groups []conf.Label
+	var filter_label string
 	for _, v := range cfg.Policies {
 		if v.APIKey == key {
 			log.Print("Found")
 			groups = append(groups, v.Labels...)
 		}
 	}
-	return groups
+
+	for _, v := range groups {
+		filter_label += v.Label
+		filter_label += "=\""
+		filter_label += v.Value
+		filter_label += "\","
+	}
+	return strings.Trim(filter_label, ",")
 }
 func endUpModifyRequest(t time.Time) int {
 	t2 := time.Now()
@@ -50,24 +60,28 @@ func endUpModifyRequest(t time.Time) int {
 	return 1
 }
 
-func modifyRequest(req *http.Request, cfg *conf.Config) int {
+func modifyRequest(req *http.Request, cfg *conf.Config) (int, error) {
 	t1 := time.Now()
-	label_list := getGroup(req, cfg)
-	log.Println(label_list)
+	prom_key := req.Header.Get("PROMETHEUS-API-KEY")
+	label_filter_string, err := conf.GetFilter(cfg.Policies, prom_key)
+	if err != nil {
+		return 0, err
+	}
+	log.Println(label_filter_string)
 
 	if req.URL.Query().Get("query") == "time()" {
-		return endUpModifyRequest(t1)
+		return endUpModifyRequest(t1), nil
 	}
 
 	if req.URL.Path == "/api/v1/label/__name__/values" {
 		q := req.URL.Query()
-		q.Add("match[]", "{project=\"DataV2\"}")
+		q.Add("match[]", fmt.Sprintf("{%v}", label_filter_string))
 		req.URL.RawQuery = q.Encode()
 	}
 
 	if req.URL.Path == "/api/v1/labels" {
 		q := req.URL.Query()
-		q.Add("match[]", "{project=\"DataV2\"}")
+		q.Add("match[]", fmt.Sprintf("{%v}", label_filter_string))
 		req.URL.RawQuery = q.Encode()
 	}
 	if req.URL.Path == "/api/v1/query" {
@@ -77,7 +91,7 @@ func modifyRequest(req *http.Request, cfg *conf.Config) int {
 		for k, v := range req.Form {
 			if k == "query" {
 				q.Del(k)
-				q.Add(k, v[0]+"{project=\"DataV2\"}")
+				q.Add(k, queryprocessing.UpdateQuery(v[0], label_filter_string))
 				continue
 			}
 			q.Del(k)
@@ -93,7 +107,7 @@ func modifyRequest(req *http.Request, cfg *conf.Config) int {
 		for k, v := range req.Form {
 			if k == "query" {
 				q.Del(k)
-				q.Add(k, v[0]+"{project=\"DataV2\"}")
+				q.Add(k, v[0]+label_filter_string)
 				continue
 			}
 			q.Del(k)
@@ -102,7 +116,7 @@ func modifyRequest(req *http.Request, cfg *conf.Config) int {
 		req.URL.RawQuery = q.Encode()
 	}
 
-	return endUpModifyRequest(t1)
+	return endUpModifyRequest(t1), nil
 }
 
 func errorHandler() func(http.ResponseWriter, *http.Request, error) {

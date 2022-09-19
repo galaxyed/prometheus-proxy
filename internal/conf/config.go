@@ -1,7 +1,9 @@
 package conf
 
 import (
+	"log"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -40,4 +42,32 @@ func NewConfig(configPath string) (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func GetFilter(policies []Policy, ApiKey string) (string, error) {
+	var groups []Label
+	var filter_label string
+	for _, v := range policies {
+		if v.APIKey == ApiKey {
+			log.Print("Found")
+			groups = append(groups, v.Labels...)
+		}
+	}
+
+	if len(groups) == 0 {
+		return "DeadEndpoint=\"You have no access to This, This returned empty thing\"", nil
+	}
+
+	for _, v := range groups {
+		filter_label += v.Label
+		if strings.Contains(v.Value, "*") {
+			filter_label += "=~\""
+		} else {
+			filter_label += "=\""
+		}
+
+		filter_label += v.Value
+		filter_label += "\","
+	}
+	return strings.Trim(filter_label, ","), nil
 }
