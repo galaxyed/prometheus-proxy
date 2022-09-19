@@ -61,13 +61,13 @@ func endUpModifyRequest(t time.Time) int {
 }
 
 func modifyRequest(req *http.Request, cfg *conf.Config) (int, error) {
+	req.Header.Add("Authorization", cfg.PrometheusKey)
 	t1 := time.Now()
 	prom_key := req.Header.Get("PROMETHEUS-API-KEY")
 	label_filter_string, err := conf.GetFilter(cfg.Policies, prom_key)
 	if err != nil {
 		return 0, err
 	}
-	log.Println(label_filter_string)
 
 	if req.URL.Query().Get("query") == "time()" {
 		return endUpModifyRequest(t1), nil

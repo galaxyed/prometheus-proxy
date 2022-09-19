@@ -11,7 +11,7 @@ func UpdateQuery(query string, limitFlag string) string {
 	r = regexp.MustCompile("^\\s*([a-z\\_]+)\\s*$")
 
 	if r.MatchString(query) {
-		fmt.Println(r.MatchString(query))
+		// fmt.Println(r.MatchString(query))
 		finalString := r.ReplaceAllString(query, fmt.Sprintf("%v{%v}", query, limitFlag))
 		fmt.Println(finalString)
 		return finalString
@@ -20,7 +20,7 @@ func UpdateQuery(query string, limitFlag string) string {
 	// Case 2: Match ...
 	r = regexp.MustCompile("({\\s*})")
 	if r.MatchString(query) {
-		fmt.Println(r.MatchString(query))
+		// fmt.Println(r.MatchString(query))
 		finalString := r.ReplaceAllString(query, "{"+limitFlag+"}")
 		fmt.Println(finalString)
 		return finalString
@@ -29,7 +29,7 @@ func UpdateQuery(query string, limitFlag string) string {
 	// Case 3: Match ...
 	r = regexp.MustCompile("({\\s*)")
 	if r.MatchString(query) {
-		fmt.Println("case 3")
+		// fmt.Println("case 3")
 		finalString := r.ReplaceAllString(query, "{"+limitFlag+",")
 		fmt.Println(finalString)
 		return finalString

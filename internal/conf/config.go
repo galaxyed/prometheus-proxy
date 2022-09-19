@@ -9,7 +9,8 @@ import (
 )
 
 type Config struct {
-	Policies []Policy `yaml:"Policies"`
+	Policies      []Policy `yaml:"Policies"`
+	PrometheusKey string   `yaml:"PrometheusKey"`
 }
 type Policy struct {
 	Name   string  `yaml:"Name"`
@@ -72,7 +73,7 @@ func GetFilter(policies []Policy, ApiKey string) (string, error) {
 
 	for label, value := range groupsMap {
 		filter_label += label
-		if strings.Contains(value, "*") || strings.Contains(value, "|"){
+		if strings.Contains(value, "*") || strings.Contains(value, "|") {
 			filter_label += "=~\""
 		} else {
 			filter_label += "=\""
