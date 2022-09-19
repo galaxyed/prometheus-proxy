@@ -1,4 +1,6 @@
 # config.yml
+PrometheusKey: "Basic ABC"
+Authorization: "Basic ZGX"
 Policies:
   - Name: DataV2
     APIKey: uAreY1f7ezuighGhu0AUozz5ihDEG8mLU7DnH92dNr3oKY1VP5KA4EfbnFPqIBXd
