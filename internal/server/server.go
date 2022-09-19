@@ -9,6 +9,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -73,7 +74,8 @@ func modifyRequest(req *http.Request, cfg *conf.Config) (int, error) {
 		return endUpModifyRequest(t1), nil
 	}
 
-	if req.URL.Path == "/api/v1/label/__name__/values" {
+	match, _ := regexp.MatchString("/api/v1/label/.*/values", req.URL.Path)
+	if match {
 		q := req.URL.Query()
 		q.Add("match[]", fmt.Sprintf("{%v}", label_filter_string))
 		req.URL.RawQuery = q.Encode()
