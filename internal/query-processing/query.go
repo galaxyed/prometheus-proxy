@@ -8,7 +8,7 @@ import (
 func UpdateQuery(query string, limitFlag string) string {
 	var r *regexp.Regexp
 	// Case 1: Single Match
-	r = regexp.MustCompile("^\\s*([a-z\\_]+)\\s*$")
+	r = regexp.MustCompile("^\\s*([a-zA-Z\\_]+)\\s*$")
 
 	if r.MatchString(query) {
 		// fmt.Println(r.MatchString(query))

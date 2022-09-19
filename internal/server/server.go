@@ -107,7 +107,7 @@ func modifyRequest(req *http.Request, cfg *conf.Config) (int, error) {
 		for k, v := range req.Form {
 			if k == "query" {
 				q.Del(k)
-				q.Add(k, v[0]+label_filter_string)
+				q.Add(k, queryprocessing.UpdateQuery(v[0], label_filter_string))
 				continue
 			}
 			q.Del(k)
